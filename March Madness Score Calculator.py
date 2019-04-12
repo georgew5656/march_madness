@@ -1,6 +1,6 @@
 from parse_brackets import load_538_predictions, main
 import requests
-ACTUAL_ROUND_DICT = {'Duke': 4, 'North Dakota St': 1, 'VCU': 1, 'UCF': 2, 'Mississippi St': 1, 'Liberty': 2,
+PREDICTED_ROUND = {'Duke': 4, 'North Dakota St': 1, 'VCU': 1, 'UCF': 2, 'Mississippi St': 1, 'Liberty': 2,
                      'Virginia Tech': 3, 'Saint Louis': 1, 'Maryland': 2, 'Belmont': 1, 'LSU': 3, 'Yale': 1,
                      'Louisville': 1, 'Minnesota': 2, 'Michigan State': 5, 'Bradley': 1,
 
@@ -16,8 +16,13 @@ ACTUAL_ROUND_DICT = {'Duke': 4, 'North Dakota St': 1, 'VCU': 1, 'UCF': 2, 'Missi
                      'Auburn': 5, 'New Mexico St': 1, 'Kansas': 2, 'Northeastern': 1, 'Iowa State': 1, 'Ohio State': 2,
                      'Houston': 3, 'Georgia State': 1, 'Wofford': 2, 'Seton Hall': 1, 'Kentucky': 4, 'Abil Christian': 1}
 
+ACTUAL_GAMES_WON = PREDICTED_ROUND.copy()
+for team in ACTUAL_GAMES_WON:
+    ACTUAL_GAMES_WON[team] -= 1
+
 
 PROBABILITIES = load_538_predictions()
+print(PROBABILITIES)
 #FILL IN WITH ACTUAL STARTING 538 PROBABILITIES {key: team name, value: [None, make round1 prob, make round2 prob, etc.]}
 ROUND_MULTIPLIERS = [None, 1, 2, 4, 8, 16, 32] #None to 1-index round numbers
 base_url = "http://fantasy.espn.com/tournament-challenge-bracket/2019/en/entry?entryID="
@@ -29,12 +34,12 @@ for entry in entry_ids:
     score = 0
     response = requests.get(base_url + entry_ids[entry]).text
     main(response)
-    with open("predictions.txt") as f: #f is txt file with each line being TEAM_NAME PREDICTED_ROUND space seperated
+    with open("predictions.txt") as f:  # f is txt file with each line being TEAM_NAME    PREDICTED_GAMES_WON tab seperated (max 6 games)
         for line in f.readlines():
             data = line.strip().split()
-            team, predicted_round = ' '.join(data[:-1]), int(data[-1])
-            actual_round = ACTUAL_ROUND_DICT[team]
-            for r in range(1, min(predicted_round, actual_round)):
+            team, predicted_games = ' '.join(data[:-1]), int(data[-1])
+            actual_games = ACTUAL_GAMES_WON[team]
+            for r in range(1, min(predicted_games, actual_games) + 1):
                 score += 1 / PROBABILITIES[team][r] * ROUND_MULTIPLIERS[r]
     print(str(score) + ' ' + entry)
 
@@ -46,8 +51,8 @@ for entry in entry_ids:
     with open("predictions.txt") as f: #f is txt file with each line being TEAM_NAME PREDICTED_ROUND space seperated
         for line in f.readlines():
             data = line.strip().split()
-            team, predicted_round = ' '.join(data[:-1]), int(data[-1])
-            actual_round = ACTUAL_ROUND_DICT[team]
-            for r in range(1, min(predicted_round, actual_round)):
+            team, predicted_games = ' '.join(data[:-1]), int(data[-1])
+            actual_games = ACTUAL_GAMES_WON[team]
+            for r in range(1, min(predicted_games, actual_games) + 1):
                 score += 10 * ROUND_MULTIPLIERS[r]
     print(str(score) + ' ' + entry)
