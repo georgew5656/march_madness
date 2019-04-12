@@ -34,7 +34,7 @@ for entry in entry_ids:
             data = line.strip().split()
             team, predicted_round = ' '.join(data[:-1]), int(data[-1])
             actual_round = ACTUAL_ROUND_DICT[team]
-            for r in range(1, min(predicted_round, actual_round) + 1):
+            for r in range(1, min(predicted_round, actual_round)):
                 score += 1 / PROBABILITIES[team][r] * ROUND_MULTIPLIERS[r]
     print(str(score) + ' ' + entry)
 
