@@ -29,7 +29,7 @@ def load_538_predictions():
             if probability == '<0.1%\n':
                 round_probabilites.append(.005)
             else:
-                round_probabilites.append(float(probability.strip('%\n')))
+                round_probabilites.append(float(probability.strip('%\n'))/ 100)
             start_index = end_index
         probabilities[team] = round_probabilites
     return probabilities
